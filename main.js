@@ -1,13 +1,11 @@
 let carouselChildren = document.querySelectorAll('.carousel-objects');
-let bu = document.querySelector('button');
-let caroButton = document.querySelectorAll('.dot');
-let current = 0;
+let btn = document.querySelector('button');
+let carouselButton = document.querySelectorAll('.dot');
 let categoryEl = document.querySelector('.categories-content');
 let pagination = document.querySelectorAll('.page');
-let key = '8ff224c128214e4c8434aa50bec96d4c';
+let apikey = '2da64fa643204522a38df55a18425e21';
 let body = document.querySelector('body');
-let carouselCon = document.querySelector('.carousel-container');
-let max = carouselChildren.length;
+let carouselContainer = document.querySelector('.carousel-container');
 let over = document.querySelector('.over');
 let open = document.querySelector('.cate');
 let firstArrow = document.querySelector('.ko');
@@ -18,36 +16,16 @@ let blog = document.querySelector('.blog');
 let barToggle = document.querySelector('.bar-container');
 let sideBar = document.querySelector('.sidebar');
 let getbody = document.querySelector('.content-holder');
-let nfo = `https://newsapi.org/v2/everything?`;
+let info = `https://newsapi.org/v2/everything?`;
 let getInput = document.querySelector('input');
 let getForm = document.querySelector('.form-search');
 let spinnerContainer = document.querySelector('.spinner-container');
 let showResult = document.querySelector('.show-result');
-let start = 0;
-let end = 4;
-let itemsPerPage = 8;
-let spin = false;
-spinnerContainer.style.display = '';
-
+let home=document.querySelector('.home')
+let btnContainer=document.querySelector('.btns')
+spinnerContainer.style.display = 'none';
 let categories = ['Sport', 'Entertainment', 'Gaming', 'Lifestyle','Fashion','Education'];
-
-let currentSearchQuery = '';
-let currentPage = 0;
-
-carouselChildren.forEach((tracker, index) => {
-  tracker.style.transform = `translateX(${index * 100}%)`;
-});
-
-let period = function() {
-  current = current !== max - 1 ? current + 1 : 0;
-  updateSlides();
-  updateButtonStyles();
-};
-setInterval(period, 6000);
-
-let startX = 0;
-let endX = 0;
-
+let currentQuery
 open.style.fontWeight = 'bold';
 open.addEventListener('click', function() {
   cnt.classList.toggle('wrap');
@@ -69,7 +47,6 @@ barToggle.addEventListener('click', function() {
   body.classList.add('stop');
 })
 
-
 over.addEventListener('click', sideToggle);
 function sideToggle(){
 sideBar.style.right = '-75%';
@@ -78,7 +55,6 @@ body.classList.remove('stop');
 }
 sideToggle()
 
-/* set time to string */
 function timeAgo(dateString) {
   const secs = Math.floor((new Date() - new Date(dateString)) / 1000);
   const units = [
@@ -105,75 +81,13 @@ function getSpin(spin) {
   }
 }
 
-let info = async (api) => {
-  let first = await fetch(`https://newsapi.org/v2/everything?q=${api}&apikey=${key}`);
-  let response = await first.json();
-  console.log(response)
-  let seeResponse = response.articles.filter(data => data.author && data.urlToImage);
-  let final = seeResponse.map(data => {
-    getSpin(true)
-    return {
-      author: data.author,
-      title: data.title,
-      image: data.urlToImage,
-      time: new Date(data.publishedAt),
-      url:data.url
-    };
-  });
-  return final;
-};
-
-let fetchAndDisplayResults = async (query, page) => {
-  currentSearchQuery = query; 
-  currentPage = page;         
-  clearResults(); 
-
-  let forward = await info(query);  
-  let paginatedResults = forward.slice(page * itemsPerPage, (page + 1) * itemsPerPage); 
-  
-  paginatedResults.forEach(m => {
-    console.log(m)
-    let bodyContent = `
-  
-      <div href class="major-holder">
-        <div class="img-holder">
-          <img loading='lazy' src=${m.image} alt="">
-        </div>
-        <div class="minor-holder">
-        <div class='title-holder'>
-       <a class="link" href=${m.url} target="_blank">${m.title}</a>
-        </div>
-        <div class="profile">
-        <div class="profile-holder">
-          <img src='' alt=""></div>
-          <div class="mario-holder">
-            <p class="mario">${m.author}</p>
-            <p class="date"><span><i class="fa-regular fa-calendar ey"></i></span>${timeAgo(m.time)}</p>
-            <p class="eye"><span><i class="fa-regular fa-eye"></i></span>20k Views</p>
-          </div>
-        </div>
-        </div>
-        </div>
-        
-    `;
-
-    getbody.insertAdjacentHTML('afterbegin', bodyContent);
-  });
-
-  showResult.textContent = `Showing ${paginatedResults.map(m=>m.length)} results for '${query.toUpperCase()}'`;
-
-
-  paginationBtnStyle(page);
-};
-
-let secondInfo = async (h) => {
-  start = 0;
-  end = itemsPerPage;
-  while (getbody.firstChild) {
-    getbody.removeChild(getbody.firstChild);
-  }
-  await fetchAndDisplayResults(h, 0); 
-};
+async function generateHash(text) {
+  const msgUint8 = new TextEncoder().encode(text); // Encode text (string) as Uint8 array
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // Hash the message
+  const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
+  return hashHex;
+}
 
 let clearResults = () => {
   while (getbody.firstChild) {
@@ -181,31 +95,23 @@ let clearResults = () => {
   }
 };
 
-let paginationBtnStyle = (pageIndex) => {
-  pagination.forEach((btn, index) => {
-    if (index === pageIndex) {
-      btn.style.cssText = 'color:white;background-color:red'; 
-    } else {
-      btn.style.cssText = 'color:black;background-color:white'; 
-    }
-  });
-};
-
+home.addEventListener('click',(e)=>{
+  currentQuery=e.target.textContent
+  getbody.innerHTML=''
+  logContent(currentQuery)
+  
+})
+console.log(currentQuery)
 getForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  fetchAndDisplayResults(getInput.value, 0); 
+  getbody.innerHTML=''
+  currentQuery=getInput.value
+  logContent(currentQuery); 
+  console.log(logContent(currentQuery))
   getInput.value = ''; 
-  carouselCon.style.display = 'none'; 
+  getInput.blur()
 });
 
-pagination.forEach((button, index) => {
-  button.value = index;
-  button.addEventListener('click', (e) => {
-    let page = +e.target.value; 
-    fetchAndDisplayResults(currentSearchQuery, page);
-    page*1
-  });
-});
 
 function getCategory() {
   categories.map((category) => {
@@ -214,23 +120,114 @@ function getCategory() {
         <p>${category}</p>
       </div>
     `;
-
     categoryEl.insertAdjacentHTML('afterbegin', categoryContent);
   });
 
   document.querySelectorAll('.category-item').forEach(item => {
     item.addEventListener('click', function(e) {
       let categoryText = e.target.textContent.trim(); 
-      secondInfo(categoryText); 
-      getSpin(false)
+      currentQuery=categoryText
+      logContent(currentQuery); 
+      getSpin(true)
     sideToggle()
     });
   });
 }
-
 getCategory();
 
-window.addEventListener('load', () => {
-  let hash = window.location.hash.substring(1); 
-  secondInfo('trending'); 
-});
+async function getApi(ap) {
+  currentQuery=ap
+  let api = await fetch(`https://newsapi.org/v2/everything?q=${currentQuery}&apiKey=${apikey}`)
+  let response = await api.json()
+  console.log(response)
+  let data = await Promise.all(response.articles.map(async data => {
+  let getHashId = await generateHash(data.title)
+    return {
+      id: getHashId,
+      image:data.urlToImage,
+      title: data.title,
+      name: data.author,
+      content:data.content,
+      description:data.description,
+      date:timeAgo(data.publishedAt)
+    }
+  }))
+  return data
+}
+
+async function logContent(api) {
+  currentQuery=api
+  let id=window.location.hash.slice(1)
+  let openContent = await getApi(currentQuery)
+  console.log(openContent)
+  let getInside = openContent.map(data => {
+    let showContent = `
+
+     <div href='#${data.id}' class="major-holder">
+      <div class="img-holder">
+        <img src=${data.image} loading='lazy' alt="">
+      </div>
+      <div class="minor-holder">
+     <a class="link" href='#${data.id}' >${data.title}</a>
+      <div class="profile">
+      <div class="profile-holder">
+        <img src="" alt=""></div>
+        <div class="mario-holder">
+          <p class="mario">${data.name}</p>
+          <p class="date"><span><i class="fa-regular fa-calendar ey"></i></span>${data.date}</p>
+          <p class="eye"><span><i class="fa-regular fa-eye"></i></span>20k Views</p>
+        </div>
+      </div>
+      </div>
+      </div> 
+      </div>
+    `
+    getbody.insertAdjacentHTML('afterbegin', showContent)
+    return showContent
+  })
+  return getInside
+}
+logContent('category')
+
+
+async function showNewsPage() {
+  btnContainer.style.display='none'
+  let getcorrect = window.location.hash.slice(1)
+  let hashpoint = await getApi(currentQuery)
+  getbody.innerHTML=''
+  let geti=hashpoint.find(m=>getcorrect===m.id)
+  if(geti){
+    let info=`
+<div class="pageContainer">
+  <div class="news">
+    <img src=${geti.image} loading='lazy' alt="">
+  </div>
+  <h1 class="headline">${geti.title}</h1>
+  <div class="residuals">
+    <p class="h3">${geti.description}</p>
+  <p class="aut">AUTHOR: <span>${geti.name}</span></p>
+  <p class="date">${geti.date}</p>
+  </div>
+  <div class="social-icons">
+  <i class="fa-brands fa-facebook-f"></i>
+  <i class="fa-brands fa-telegram"></i>
+  <i class="fa-brands fa-twitter"></i>
+  <i class="fa-brands fa-whatsapp"></i>
+  </div>
+  <div class="main-content">
+  <p>${geti.content}</p>
+  </div>
+  <div class="news2">
+    <img src='' alt="">
+  </div>
+</div>
+    `
+   getbody.insertAdjacentHTML('afterbegin',info)
+   return info
+  }
+  console.log(geti)
+  return geti
+}
+
+
+window.addEventListener('hashchange',showNewsPage)
