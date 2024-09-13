@@ -109,6 +109,8 @@ i{
   border: 1px solid #DDDEE8;
   flex-basis: 45%;
   overflow: hidden;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 .img-holder{
   width:100%;
@@ -176,9 +178,9 @@ max-height: 120px;
 .content-holder{
   display: grid;
   grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
-  gap: 20px 20px;
+  gap: 10px 10px;
   min-height: 70vh;
-max-height: fit-content;
+ max-height: fit-content;
   padding: 20px 20px;
 }
 .btns{
@@ -219,7 +221,13 @@ max-height: fit-content;
   border-radius: 16px;
 }
 .social-media-icon{
-  margin: 15px 0;
+  justify-content: center;
+  padding: 15px;
+  display: flex;
+  gap: 15px
+}
+.social-media-icon i{
+color: white;
 }
 .contact-details{
   display: flex;
@@ -358,8 +366,9 @@ hr{
 .spinner-container{
   margin-top: 80px;
   position: absolute;
-  top: 0;
+  top: 100px;
   padding: 10px;
+  transform: translate(0%,100%);
   width: 12rem;
   text-align: center;
   right: 120px;
@@ -398,4 +407,68 @@ border-radius: 10px
   display:flex ;
   align-items: center;
   padding: 10px 0px;
+}
+.news {
+  height: 200px;
+  width:100%;
+  overflow: hidden;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+.news img{
+  height: 100%;
+  width: 100%;
+  background-size: contain;
+  object-fit: center;
+}
+.news2 img{
+height: 100%;
+width: 50%;
+background-size: cover;
+object-fit: center;
+float: right;
+}
+.pageContainer{
+}
+.headline{
+  font-size: 25px;
+  color: #3A4188;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.residuals{
+  font-size: 20px;
+  line-height: 30px;
+}
+.residuals .h3{
+  font-size: 20px;
+  color: grey;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-weight: 200px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+.residuals author{
+  
+}
+.residuals p span{
+  width: 60px;
+  font-size:15px; 
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+.residuals .date{
+  font-size:15px
+}
+.social-icons{
+  color: grey;
+  display: flex;
+  align-items:center;
+  gap:20px;
+  padding: 15px;
+  font-size:30px;
+}
+.main-content p{
+  text-align: justify;
+  font-family: arial;
 }
